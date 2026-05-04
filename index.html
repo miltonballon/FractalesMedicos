@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractales en la Medicina</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        input[type=range] {
+            accent-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen overflow-hidden bg-gray-50 text-gray-800 flex flex-col">
+
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center px-6 shadow-sm z-10">
+        <h1 class="text-xl font-bold text-gray-900">Fractales en la Medicina</h1>
+    </header>
+
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden">
+        
+        <aside class="w-full md:w-1/3 bg-white border-r border-gray-200 p-6 flex flex-col gap-6 overflow-y-auto">
+            
+            <div class="flex flex-col gap-2">
+                <label for="exampleSelect" class="text-sm font-semibold text-gray-900">Selecciona un sistema anatómico:</label>
+                <select id="exampleSelect" class="w-full p-2 border border-gray-300 rounded-md bg-white text-sm focus:ring-2 focus:ring-red-500 outline-none cursor-pointer">
+                    <option value="pulmones">Ramificación Pulmonar</option>
+                    <option value="cerebro">Pliegues Cerebrales</option>
+                    <option value="vasos">Red Capilar</option>
+                </select>
+            </div>
+
+            <section>
+                <h2 id="infoTitle" class="text-lg font-semibold text-gray-800 mb-2">Ramificación Pulmonar</h2>
+                <p id="infoDesc" class="text-sm text-gray-600 mb-3">El cuerpo optimiza el espacio interno. Los conductos forman redes fractales.</p>
+                <ul id="infoList" class="text-sm text-gray-600 list-disc pl-5 space-y-1">
+                    <li>Un patrón ramificado se repite a múltiples escalas.</li>
+                    <li>Crea una superficie masiva en un volumen pequeño.</li>
+                    <li>Maximiza la absorción de oxígeno en la sangre.</li>
+                </ul>
+            </section>
+
+            <section class="bg-gray-50 p-4 rounded-lg border border-gray-100 flex flex-col gap-4">
+                <h3 class="font-medium text-gray-900">Controles de Simulación</h3>
+                
+                <div id="controlsPulmones" class="flex flex-col gap-4">
+                    <div>
+                        <label for="depth" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Iteraciones</span>
+                            <span id="depthVal" class="font-bold">6</span>
+                        </label>
+                        <input type="range" id="depth" min="1" max="10" value="6" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label for="angle" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Ángulo (Grados)</span>
+                            <span id="angleVal" class="font-bold">25</span>
+                        </label>
+                        <input type="range" id="angle" min="5" max="60" value="25" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label for="ratio" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Proporción</span>
+                            <span id="ratioVal" class="font-bold">0.75</span>
+                        </label>
+                        <input type="range" id="ratio" min="0.5" max="0.85" step="0.05" value="0.75" class="w-full cursor-pointer">
+                    </div>
+                </div>
+
+                <div id="controlsCerebro" class="hidden flex-col gap-4">
+                    <div>
+                        <label for="depthCerebro" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Complejidad</span>
+                            <span id="depthCerebroVal" class="font-bold">4</span>
+                        </label>
+                        <input type="range" id="depthCerebro" min="1" max="6" value="4" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label for="ampCerebro" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Amplitud del pliegue</span>
+                            <span id="ampCerebroVal" class="font-bold">0.3</span>
+                        </label>
+                        <input type="range" id="ampCerebro" min="0.1" max="0.6" step="0.05" value="0.3" class="w-full cursor-pointer">
+                    </div>
+                </div>
+
+                <div id="controlsVasos" class="hidden flex-col gap-4">
+                    <div>
+                        <label for="depthVasos" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Densidad</span>
+                            <span id="depthVasosVal" class="font-bold">5</span>
+                        </label>
+                        <input type="range" id="depthVasos" min="2" max="8" value="5" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label for="caosVasos" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Caos (Enfermedad)</span>
+                            <span id="caosVasosVal" class="font-bold">0.1</span>
+                        </label>
+                        <input type="range" id="caosVasos" min="0" max="1" step="0.1" value="0.1" class="w-full cursor-pointer">
+                    </div>
+                </div>
+                
+                <button id="resetBtn" class="mt-2 w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded transition-colors">
+                    Restablecer
+                </button>
+            </section>
+        </aside>
+
+        <section id="canvasContainer" class="w-full md:w-2/3 h-full bg-[#fafafa] relative flex items-center justify-center p-4">
+            <canvas id="fractalCanvas" class="bg-white shadow-inner border border-gray-200 rounded-xl"></canvas>
+        </section>
+
+    </main>
+
+    <script>
+        const canvas = document.getElementById('fractalCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvasContainer');
+
+        const exampleSelect = document.getElementById('exampleSelect');
+        const infoTitle = document.getElementById('infoTitle');
+        const infoDesc = document.getElementById('infoDesc');
+        const infoList = document.getElementById('infoList');
+
+        const controlsPulmones = document.getElementById('controlsPulmones');
+        const controlsCerebro = document.getElementById('controlsCerebro');
+        const controlsVasos = document.getElementById('controlsVasos');
+
+        const depthInput = document.getElementById('depth');
+        const angleInput = document.getElementById('angle');
+        const ratioInput = document.getElementById('ratio');
+        const depthVal = document.getElementById('depthVal');
+        const angleVal = document.getElementById('angleVal');
+        const ratioVal = document.getElementById('ratioVal');
+
+        const depthCerebroInput = document.getElementById('depthCerebro');
+        const ampCerebroInput = document.getElementById('ampCerebro');
+        const depthCerebroVal = document.getElementById('depthCerebroVal');
+        const ampCerebroVal = document.getElementById('ampCerebroVal');
+
+        const depthVasosInput = document.getElementById('depthVasos');
+        const caosVasosInput = document.getElementById('caosVasos');
+        const depthVasosVal = document.getElementById('depthVasosVal');
+        const caosVasosVal = document.getElementById('caosVasosVal');
+        
+        const resetBtn = document.getElementById('resetBtn');
+
+        const infoData = {
+            pulmones: {
+                title: "Ramificación Pulmonar",
+                desc: "El cuerpo optimiza el espacio interno. Los conductos forman redes fractales.",
+                items: [
+                    "Un patrón ramificado se repite a múltiples escalas.",
+                    "Crea una superficie masiva en un volumen pequeño.",
+                    "Maximiza la absorción de oxígeno en la sangre."
+                ]
+            },
+            cerebro: {
+                title: "Pliegues Cerebrales",
+                desc: "El cráneo tiene espacio limitado. El cerebro pliega su superficie para acomodar más neuronas.",
+                items: [
+                    "Aumenta la superficie sin expandir el volumen.",
+                    "Las circunvoluciones siguen patrones fractales.",
+                    "Permite una alta densidad de conexiones cognitivas."
+                ]
+            },
+            vasos: {
+                title: "Red Capilar",
+                desc: "Las redes de vasos sanguíneos distribuyen nutrientes de forma eficiente.",
+                items: [
+                    "El tejido sano muestra un patrón fractal ordenado.",
+                    "El crecimiento patológico presenta alta aleatoriedad.",
+                    "El grado de caos ayuda a detectar anomalías."
+                ]
+            }
+        };
+
+        let width, height;
+
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            width = rect.width - 32; 
+            height = rect.height - 32;
+            canvas.width = width;
+            canvas.height = height;
+            draw();
+        }
+
+        function getColor(depth, maxDepth) {
+            const ratio = depth / maxDepth;
+            const r = Math.round(180 + (70 * ratio));
+            const g = Math.round(50 * ratio);
+            const b = Math.round(50 + (150 * (1 - ratio)));
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function drawBranch(x, y, len, angle, depth, maxDepth) {
+            ctx.beginPath();
+            ctx.save();
+            
+            ctx.translate(x, y);
+            ctx.rotate(angle * Math.PI / 180);
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, -len);
+            
+            ctx.strokeStyle = getColor(depth, maxDepth);
+            ctx.lineWidth = Math.max(0.5, depth * 1.5);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            if (depth > 0) {
+                const newLen = len * parseFloat(ratioInput.value);
+                const angleOffset = parseInt(angleInput.value);
+                
+                drawBranch(0, -len, newLen, angleOffset, depth - 1, maxDepth);
+                drawBranch(0, -len, newLen, -angleOffset, depth - 1, maxDepth);
+            }
+            
+            ctx.restore();
+        }
+
+        function drawKochLine(x1, y1, x2, y2, depth, amplitude) {
+            if (depth === 0) {
+                ctx.lineTo(x2, y2);
+                return;
+            }
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            const p1x = x1 + dx / 3;
+            const p1y = y1 + dy / 3;
+            const p3x = x1 + 2 * dx / 3;
+            const p3y = y1 + 2 * dy / 3;
+
+            const cx = (x1 + x2) / 2;
+            const cy = (y1 + y2) / 2;
+
+            const perpX = -dy / dist;
+            const perpY = dx / dist;
+
+            const tipX = cx + perpX * (dist * amplitude);
+            const tipY = cy + perpY * (dist * amplitude);
+
+            drawKochLine(x1, y1, p1x, p1y, depth - 1, amplitude);
+            drawKochLine(p1x, p1y, tipX, tipY, depth - 1, amplitude);
+            drawKochLine(tipX, tipY, p3x, p3y, depth - 1, amplitude);
+            drawKochLine(p3x, p3y, x2, y2, depth - 1, amplitude);
+        }
+
+        function drawCerebro() {
+            const depth = parseInt(depthCerebroInput.value);
+            const amplitude = parseFloat(ampCerebroInput.value);
+            const radius = Math.min(width, height) * 0.35;
+            const cx = width / 2;
+            const cy = height / 2;
+
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444';
+            ctx.fillStyle = '#fef2f2';
+            ctx.lineWidth = 1.5;
+            ctx.lineJoin = 'round';
+
+            const points = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = (i * Math.PI) / 3;
+                points.push({
+                    x: cx + radius * Math.cos(angle),
+                    y: cy + radius * Math.sin(angle)
+                });
+            }
+
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 0; i < 6; i++) {
+                const next = (i + 1) % 6;
+                drawKochLine(points[i].x, points[i].y, points[next].x, points[next].y, depth, amplitude);
+            }
+            
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function drawPulmones() {
+            const maxDepth = parseInt(depthInput.value);
+            const initialLength = height * 0.25;
+            const startX = width / 2;
+            const startY = height - (height * 0.1);
+            drawBranch(startX, startY, initialLength, 0, maxDepth, maxDepth);
+        }
+
+        function drawVesselBranch(x, y, len, angle, depth, maxDepth, chaos) {
+            ctx.beginPath();
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle * Math.PI / 180);
+            ctx.moveTo(0, 0);
+
+            const cx = 0;
+            const cy = -len / 2;
+            const chaosFactor = (Math.random() - 0.5) * chaos * len * 1.5;
+            ctx.quadraticCurveTo(cx + chaosFactor, cy, 0, -len);
+
+            ctx.strokeStyle = `rgba(220, 38, 38, ${0.4 + (depth / maxDepth) * 0.6})`;
+            ctx.lineWidth = Math.max(0.5, depth);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            if (depth > 0) {
+                const newLen = len * 0.75;
+                const baseAngle = 30;
+                
+                const angle1 = baseAngle + (Math.random() * 50 * chaos);
+                const angle2 = -baseAngle - (Math.random() * 50 * chaos);
+                
+                const len1 = newLen * (1 - (Math.random() * 0.6 * chaos));
+                const len2 = newLen * (1 - (Math.random() * 0.6 * chaos));
+
+                drawVesselBranch(0, -len, len1, angle1, depth - 1, maxDepth, chaos);
+                drawVesselBranch(0, -len, len2, angle2, depth - 1, maxDepth, chaos);
+            }
+            ctx.restore();
+        }
+
+        function drawVasos() {
+            const maxDepth = parseInt(depthVasosInput.value);
+            const chaos = parseFloat(caosVasosInput.value);
+            const initialLength = height * 0.2;
+            const startX = width / 2;
+            const startY = height - (height * 0.1);
+            
+            drawVesselBranch(startX, startY, initialLength, 0, maxDepth, maxDepth, chaos);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            if (exampleSelect.value === 'pulmones') {
+                drawPulmones();
+            } else if (exampleSelect.value === 'cerebro') {
+                drawCerebro();
+            } else {
+                drawVasos();
+            }
+        }
+
+        function updateUI() {
+            const selection = exampleSelect.value;
+            const data = infoData[selection];
+            
+            infoTitle.textContent = data.title;
+            infoDesc.textContent = data.desc;
+            infoList.innerHTML = data.items.map(item => `<li>${item}</li>`).join('');
+
+            controlsPulmones.classList.add('hidden');
+            controlsPulmones.classList.remove('flex');
+            controlsCerebro.classList.add('hidden');
+            controlsCerebro.classList.remove('flex');
+            controlsVasos.classList.add('hidden');
+            controlsVasos.classList.remove('flex');
+
+            if (selection === 'pulmones') {
+                controlsPulmones.classList.remove('hidden');
+                controlsPulmones.classList.add('flex');
+            } else if (selection === 'cerebro') {
+                controlsCerebro.classList.remove('hidden');
+                controlsCerebro.classList.add('flex');
+            } else {
+                controlsVasos.classList.remove('hidden');
+                controlsVasos.classList.add('flex');
+            }
+            draw();
+        }
+
+        function updateValues() {
+            depthVal.textContent = depthInput.value;
+            angleVal.textContent = angleInput.value;
+            ratioVal.textContent = ratioInput.value;
+            
+            depthCerebroVal.textContent = depthCerebroInput.value;
+            ampCerebroVal.textContent = ampCerebroInput.value;
+
+            depthVasosVal.textContent = depthVasosInput.value;
+            caosVasosVal.textContent = caosVasosInput.value;
+            
+            draw();
+        }
+
+        exampleSelect.addEventListener('change', updateUI);
+
+        depthInput.addEventListener('input', updateValues);
+        angleInput.addEventListener('input', updateValues);
+        ratioInput.addEventListener('input', updateValues);
+
+        depthCerebroInput.addEventListener('input', updateValues);
+        ampCerebroInput.addEventListener('input', updateValues);
+
+        depthVasosInput.addEventListener('input', updateValues);
+        caosVasosInput.addEventListener('input', updateValues);
+
+        resetBtn.addEventListener('click', () => {
+            depthInput.value = 6;
+            angleInput.value = 25;
+            ratioInput.value = 0.75;
+            
+            depthCerebroInput.value = 4;
+            ampCerebroInput.value = 0.3;
+
+            depthVasosInput.value = 5;
+            caosVasosInput.value = 0.1;
+            
+            updateValues();
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>
