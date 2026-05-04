@@ -30,6 +30,8 @@
                     <option value="pulmones">Ramificación Pulmonar</option>
                     <option value="cerebro">Pliegues Cerebrales</option>
                     <option value="vasos">Red Capilar</option>
+                    <option value="neuronas">Dendritas Neuronales</option>
+                    <option value="huesos">Tejido Óseo</option>
                 </select>
             </div>
 
@@ -107,6 +109,42 @@
                         <input type="range" id="caosVasos" min="0" max="1" step="0.1" value="0.1" class="w-full cursor-pointer">
                     </div>
                 </div>
+
+                <div id="controlsNeuronas" class="hidden flex-col gap-4">
+                    <div>
+                        <label for="ramasNeurona" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Ramas principales</span>
+                            <span id="ramasNeuronaVal" class="font-bold">5</span>
+                        </label>
+                        <input type="range" id="ramasNeurona" min="3" max="8" value="5" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label for="profundidadNeurona" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Nivel de ramificación</span>
+                            <span id="profundidadNeuronaVal" class="font-bold">4</span>
+                        </label>
+                        <input type="range" id="profundidadNeurona" min="2" max="6" value="4" class="w-full cursor-pointer">
+                    </div>
+                </div>
+
+                <div id="controlsHuesos" class="hidden flex-col gap-4">
+                    <div>
+                        <label for="depthHuesos" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Complejidad fractal</span>
+                            <span id="depthHuesosVal" class="font-bold">4</span>
+                        </label>
+                        <input type="range" id="depthHuesos" min="2" max="5" value="4" class="w-full cursor-pointer">
+                    </div>
+
+                    <div>
+                        <label for="densidadHuesos" class="flex justify-between text-sm text-gray-700 mb-1">
+                            <span>Masa Ósea (Salud)</span>
+                            <span id="densidadHuesosVal" class="font-bold">0.85</span>
+                        </label>
+                        <input type="range" id="densidadHuesos" min="0.4" max="1.0" step="0.05" value="0.85" class="w-full cursor-pointer">
+                    </div>
+                </div>
                 
                 <button id="resetBtn" class="mt-2 w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded transition-colors">
                     Restablecer
@@ -133,6 +171,8 @@
         const controlsPulmones = document.getElementById('controlsPulmones');
         const controlsCerebro = document.getElementById('controlsCerebro');
         const controlsVasos = document.getElementById('controlsVasos');
+        const controlsNeuronas = document.getElementById('controlsNeuronas');
+        const controlsHuesos = document.getElementById('controlsHuesos');
 
         const depthInput = document.getElementById('depth');
         const angleInput = document.getElementById('angle');
@@ -150,6 +190,16 @@
         const caosVasosInput = document.getElementById('caosVasos');
         const depthVasosVal = document.getElementById('depthVasosVal');
         const caosVasosVal = document.getElementById('caosVasosVal');
+
+        const ramasNeuronaInput = document.getElementById('ramasNeurona');
+        const profundidadNeuronaInput = document.getElementById('profundidadNeurona');
+        const ramasNeuronaVal = document.getElementById('ramasNeuronaVal');
+        const profundidadNeuronaVal = document.getElementById('profundidadNeuronaVal');
+
+        const depthHuesosInput = document.getElementById('depthHuesos');
+        const densidadHuesosInput = document.getElementById('densidadHuesos');
+        const depthHuesosVal = document.getElementById('depthHuesosVal');
+        const densidadHuesosVal = document.getElementById('densidadHuesosVal');
         
         const resetBtn = document.getElementById('resetBtn');
 
@@ -179,6 +229,24 @@
                     "El tejido sano muestra un patrón fractal ordenado.",
                     "El crecimiento patológico presenta alta aleatoriedad.",
                     "El grado de caos ayuda a detectar anomalías."
+                ]
+            },
+            neuronas: {
+                title: "Dendritas Neuronales",
+                desc: "Las neuronas desarrollan árboles dendríticos complejos para conectarse.",
+                items: [
+                    "Maximizan el área de recepción de señales eléctricas.",
+                    "El patrón fractal facilita miles de conexiones sinápticas simultáneas.",
+                    "La pérdida de esta complejidad se asocia a enfermedades neurodegenerativas."
+                ]
+            },
+            huesos: {
+                title: "Tejido Óseo",
+                desc: "El interior de los huesos forma una red porosa y estructurada.",
+                items: [
+                    "Maximiza la resistencia estructural del cuerpo.",
+                    "Minimiza el peso del esqueleto.",
+                    "La osteoporosis altera este patrón fractal y debilita el hueso."
                 ]
             }
         };
@@ -340,14 +408,92 @@
             drawVesselBranch(startX, startY, initialLength, 0, maxDepth, maxDepth, chaos);
         }
 
+        function drawDendrite(x, y, len, angle, depth, maxDepth, branchIndex) {
+            ctx.beginPath();
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle * Math.PI / 180);
+            ctx.moveTo(0, 0);
+
+            const bend = Math.sin(depth + branchIndex) * 12;
+            ctx.quadraticCurveTo(bend / 2, -len / 2, bend, -len);
+
+            ctx.strokeStyle = `rgba(59, 130, 246, ${0.4 + (depth / maxDepth) * 0.6})`;
+            ctx.lineWidth = Math.max(0.5, depth);
+            ctx.lineCap = 'round';
+            ctx.stroke();
+
+            if (depth > 0) {
+                const newLen = len * 0.75;
+                const angle1 = 25 + Math.cos(depth) * 10;
+                const angle2 = -20 - Math.sin(depth) * 15;
+                
+                drawDendrite(bend, -len, newLen * 0.9, angle1, depth - 1, maxDepth, 1);
+                drawDendrite(bend, -len, newLen * 1.1, angle2, depth - 1, maxDepth, 2);
+            }
+            ctx.restore();
+        }
+
+        function drawNeuronas() {
+            const maxDepth = parseInt(profundidadNeuronaInput.value);
+            const numRamas = parseInt(ramasNeuronaInput.value);
+            const initialLength = height * 0.15;
+            const cx = width / 2;
+            const cy = height / 2;
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fill();
+
+            for (let i = 0; i < numRamas; i++) {
+                const angle = (i * 360 / numRamas);
+                drawDendrite(cx, cy, initialLength, angle, maxDepth, maxDepth, i);
+            }
+        }
+
+        function drawBoneMatrix(x, y, size, depth, density) {
+            if (depth === 0) {
+                ctx.fillStyle = '#d4d4d8';
+                ctx.fillRect(x, y, size, size);
+                ctx.strokeStyle = '#a1a1aa';
+                ctx.lineWidth = 0.5;
+                ctx.strokeRect(x, y, size, size);
+                return;
+            }
+            const third = size / 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (i === 1 && j === 1) continue;
+                    if (Math.random() < density) {
+                        drawBoneMatrix(x + i * third, y + j * third, third, depth - 1, density);
+                    }
+                }
+            }
+        }
+
+        function drawHuesos() {
+            const depth = parseInt(depthHuesosInput.value);
+            const density = parseFloat(densidadHuesosInput.value);
+            const size = Math.min(width, height) * 0.7;
+            const startX = (width - size) / 2;
+            const startY = (height - size) / 2;
+            
+            drawBoneMatrix(startX, startY, size, depth, density);
+        }
+
         function draw() {
             ctx.clearRect(0, 0, width, height);
             if (exampleSelect.value === 'pulmones') {
                 drawPulmones();
             } else if (exampleSelect.value === 'cerebro') {
                 drawCerebro();
-            } else {
+            } else if (exampleSelect.value === 'vasos') {
                 drawVasos();
+            } else if (exampleSelect.value === 'neuronas') {
+                drawNeuronas();
+            } else {
+                drawHuesos();
             }
         }
 
@@ -365,6 +511,10 @@
             controlsCerebro.classList.remove('flex');
             controlsVasos.classList.add('hidden');
             controlsVasos.classList.remove('flex');
+            controlsNeuronas.classList.add('hidden');
+            controlsNeuronas.classList.remove('flex');
+            controlsHuesos.classList.add('hidden');
+            controlsHuesos.classList.remove('flex');
 
             if (selection === 'pulmones') {
                 controlsPulmones.classList.remove('hidden');
@@ -372,9 +522,15 @@
             } else if (selection === 'cerebro') {
                 controlsCerebro.classList.remove('hidden');
                 controlsCerebro.classList.add('flex');
-            } else {
+            } else if (selection === 'vasos') {
                 controlsVasos.classList.remove('hidden');
                 controlsVasos.classList.add('flex');
+            } else if (selection === 'neuronas') {
+                controlsNeuronas.classList.remove('hidden');
+                controlsNeuronas.classList.add('flex');
+            } else {
+                controlsHuesos.classList.remove('hidden');
+                controlsHuesos.classList.add('flex');
             }
             draw();
         }
@@ -389,6 +545,12 @@
 
             depthVasosVal.textContent = depthVasosInput.value;
             caosVasosVal.textContent = caosVasosInput.value;
+
+            ramasNeuronaVal.textContent = ramasNeuronaInput.value;
+            profundidadNeuronaVal.textContent = profundidadNeuronaInput.value;
+
+            depthHuesosVal.textContent = depthHuesosInput.value;
+            densidadHuesosVal.textContent = densidadHuesosInput.value;
             
             draw();
         }
@@ -405,6 +567,12 @@
         depthVasosInput.addEventListener('input', updateValues);
         caosVasosInput.addEventListener('input', updateValues);
 
+        ramasNeuronaInput.addEventListener('input', updateValues);
+        profundidadNeuronaInput.addEventListener('input', updateValues);
+
+        depthHuesosInput.addEventListener('input', updateValues);
+        densidadHuesosInput.addEventListener('input', updateValues);
+
         resetBtn.addEventListener('click', () => {
             depthInput.value = 6;
             angleInput.value = 25;
@@ -415,6 +583,12 @@
 
             depthVasosInput.value = 5;
             caosVasosInput.value = 0.1;
+
+            ramasNeuronaInput.value = 5;
+            profundidadNeuronaInput.value = 4;
+
+            depthHuesosInput.value = 4;
+            densidadHuesosInput.value = 0.85;
             
             updateValues();
         });
